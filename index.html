@@ -3,215 +3,292 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>J-Bay Welders | Structural Engineering & Precision Fabrication</title>
+    <title>J-Bay Welders | Structural Engineering & Master Fabrication</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #f8fafc; margin: 0; overflow-x: hidden; touch-action: manipulation; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-        
-        /* Brand Colors */
-        .text-industrial-orange { color: #f97316; }
-        .bg-industrial-orange { background-color: #f97316; }
-        .border-industrial-orange { border-color: #f97316; }
-
-        @keyframes spark-shoot {
-            0% { transform: translate(0,0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+        :root {
+            --blueprint-blue: #0f172a;
+            --zinc: #64748b;
+            --industrial-orange: #f97316;
         }
-        .spark-line { stroke: #60a5fa; stroke-width: 1.5; stroke-linecap: round; animation: spark-shoot 0.3s linear infinite; transform-origin: 50px 75px; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
-        .nav-link { font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; transition: 0.4s; cursor: pointer; white-space: nowrap; }
-        .active-tab { color: #f97316 !important; position: relative; }
-        .active-tab::after { content: ''; position: absolute; bottom: -8px; left: 0; width: 100%; height: 2px; background: #f97316; }
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background-color: #020617; 
+            color: #f8fafc; 
+            margin: 0; 
+            line-height: 1.6;
+        }
 
-        .glass-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; }
-        .hero-gradient { background: linear-gradient(to bottom, rgba(2,6,23,0.95) 20%, transparent 100%), url('https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=1920'); background-size: cover; background-position: center; }
+        /* Fixed Navigation System */
+        header.main-nav { 
+            position: fixed; 
+            top: 0; 
+            width: 100%; 
+            z-index: 1000; 
+            background: rgba(2, 6, 23, 0.95); 
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(255,255,255,0.05); 
+        }
 
-        /* Keyboard-Style Controls */
+        /* LOGO & WELDING ANIMATION STYLES */
+        .logo-container { position: relative; width: 280px; height: 60px; display: flex; align-items: center; }
+        #weldCanvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 10; }
+        
+        .tab-content { display: none; padding-top: 140px; padding-bottom: 100px; }
+        .tab-content.active { display: block; animation: entry 0.4s ease-out; }
+        
+        @keyframes entry { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .nav-link { font-size: 12px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: var(--zinc); transition: 0.3s; cursor: pointer; position: relative; }
+        .active-tab { color: white !important; }
+        .active-tab::after { content: ''; position: absolute; bottom: -8px; left: 0; width: 100%; height: 3px; background: var(--industrial-orange); }
+
+        .spec-card { 
+            background: linear-gradient(145deg, #0f172a, #020617);
+            border: 1px solid rgba(255,255,255,0.05); 
+            border-left: 4px solid var(--zinc);
+            transition: 0.3s;
+        }
+        .spec-card:hover { border-left-color: var(--industrial-orange); background: rgba(30, 41, 59, 0.5); }
+
+        /* Arcade Lock */
+        #arcade { touch-action: none; overflow: hidden; }
+        .key-cluster { display: grid; grid-template-areas: ". up ." "left down right"; gap: 12px; }
         .key-btn { 
-            background: #1e293b; 
-            border-bottom: 4px solid #0f172a;
-            border-radius: 6px; 
-            width: 50px; 
-            height: 50px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 18px; 
-            color: white;
-            box-shadow: 0 4px 0 #000;
-            transition: all 0.05s;
-            user-select: none;
+            background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-bottom: 5px solid #000; 
+            border-radius: 4px; width: 65px; height: 65px; display: flex; align-items: center; 
+            justify-content: center; font-size: 24px; color: white; transition: 0.1s; user-select: none;
         }
-        .key-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #000; border-bottom: 2px solid #0f172a; background: #f97316; }
-        canvas { background: #000; border: 4px solid #1e293b; border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        
-        input, select, textarea { background: #0f172a !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
+        .key-btn:active { transform: translateY(3px); border-bottom-width: 1px; background: var(--industrial-orange); }
+
+        canvas#tetris { 
+            background: #000; 
+            border: 6px solid #1e293b; 
+            background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .wa-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #25d366;
+            color: #FFF;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 1001;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .wa-float:hover { transform: scale(1.05); background-color: #128c7e; }
+        .wa-text { font-size: 14px; font-weight: 800; text-transform: uppercase; padding-right: 10px; }
+
+        input, select, textarea { 
+            background: #0f172a !important; 
+            border: 1px solid #334155 !important; 
+            color: white !important; 
+            padding: 1rem !important;
+            border-radius: 4px !important;
+        }
     </style>
 </head>
 <body>
 
-    <nav class="sticky top-0 z-[1000] px-4 lg:px-24 py-4 flex flex-col lg:flex-row justify-between items-center bg-slate-950/90 backdrop-blur-xl border-b border-white/5">
-        <div class="flex items-center gap-4 mb-4 lg:mb-0">
-            <svg width="45" height="45" viewBox="0 0 100 100">
-                <rect x="20" y="78" width="60" height="5" fill="#334155" rx="1" />
-                <g transform="rotate(-40 50 75)">
-                    <rect x="48" y="10" width="4" height="65" fill="#94a3b8" rx="1" />
-                    <line x1="50" y1="75" x2="50" y2="75" class="spark-line" style="--x: 15px; --y: -15px; animation-delay: 0.1s;"/>
-                    <line x1="50" y1="75" x2="50" y2="75" class="spark-line" style="--x: -15px; --y: -20px; animation-delay: 0.2s;"/>
-                    <circle cx="50" cy="75" r="3" fill="#fff"><animate attributeName="r" values="3;4;3" dur="0.1s" repeatCount="indefinite" /></circle>
-                </g>
-            </svg>
-            <div class="text-xl font-black tracking-tighter uppercase italic leading-none">J-BAY <br><span class="text-industrial-orange">WELDERS</span></div>
+    <header class="main-nav px-8 py-4">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center">
+            <div class="logo-container">
+                <canvas id="weldCanvas" width="280" height="60"></canvas>
+                <div class="leading-none z-20 relative">
+                    <span class="text-3xl font-black tracking-tighter uppercase italic">J-BAY</span>
+                    <span class="text-3xl font-light tracking-tighter uppercase ml-1 text-industrial-orange">WELDERS</span>
+                    <div class="text-[9px] tracking-[0.4em] font-bold text-zinc-500 mt-1 uppercase">Structural Engineering</div>
+                </div>
+            </div>
+
+            <nav class="flex gap-10">
+                <div onclick="switchTab('home')" class="nav-link active-tab" id="btn-home">Practice</div>
+                <div onclick="switchTab('knowledge')" class="nav-link" id="btn-knowledge">Intelligence</div>
+                <div onclick="switchTab('whatsapp')" class="nav-link" id="btn-whatsapp">Manifest</div>
+                <div onclick="switchTab('arcade')" class="nav-link" id="btn-arcade">Workshop</div>
+            </nav>
         </div>
-        <div class="flex gap-4 lg:gap-12 overflow-x-auto w-full lg:w-auto pb-2 justify-center">
-            <div onclick="switchTab('home')" class="nav-link active-tab" id="btn-home">Executive</div>
-            <div onclick="switchTab('knowledge')" class="nav-link" id="btn-knowledge">Intelligence</div>
-            <div onclick="switchTab('whatsapp')" class="nav-link" id="btn-whatsapp">Projects</div>
-            <div onclick="switchTab('arcade')" class="nav-link" id="btn-arcade">Arcade</div>
-        </div>
-    </nav>
+    </header>
 
-    <main id="home" class="tab-content active">
-        <section class="hero-gradient min-h-[85vh] flex flex-col justify-center px-6 lg:px-24 py-12">
-            <span class="inline-block py-1 px-3 border border-industrial-orange text-industrial-orange text-[10px] font-black uppercase tracking-[0.3em] mb-8 w-fit">Jeffreys Bay • Eastern Cape • Industrial Grade</span>
-            <h1 class="text-5xl lg:text-9xl font-black leading-[0.9] uppercase mb-8 italic">Iron <br><span class="text-industrial-orange">Discipline.</span></h1>
-            <p class="max-w-2xl text-slate-300 text-lg mb-12 leading-relaxed">The Kouga region's premier structural fabrication house. We deliver high-calibre steel solutions for the automotive, marine, and construction sectors.</p>
-            
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl">
-                <div class="glass-card p-4 border-l-2 border-industrial-orange">
-                    <p class="text-[9px] uppercase font-bold text-slate-500 mb-1">Standard</p>
-                    <h3 class="text-xl font-black italic">SABS ISO 9001</h3>
-                </div>
-                <div class="glass-card p-4">
-                    <p class="text-[9px] uppercase font-bold text-slate-500 mb-1">Force</p>
-                    <h3 class="text-xl font-black italic">Coded Welding</h3>
-                </div>
-                <div class="glass-card p-4 border-l-2 border-industrial-orange">
-                    <p class="text-[9px] uppercase font-bold text-slate-500 mb-1">Reach</p>
-                    <h3 class="text-xl font-black italic">National Site Work</h3>
-                </div>
-                <div class="glass-card p-4">
-                    <p class="text-[9px] uppercase font-bold text-slate-500 mb-1">Legacy</p>
-                    <h3 class="text-xl font-black italic">Since 1998</h3>
+    <main id="home" class="tab-content active px-8">
+        <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
+            <div>
+                <h1 class="text-7xl font-black uppercase italic leading-[0.8] mb-8">Structural <br><span class="text-industrial-orange">Excellence.</span></h1>
+                <p class="text-zinc-400 text-lg leading-relaxed mb-10">With over four decades of industry-leading experience, we provide high-caliber steel solutions for the Kouga region. Our practice is built on the pillars of geometric precision and metallurgical integrity.</p>
+                <div class="flex gap-4">
+                    <button onclick="switchTab('whatsapp')" class="bg-industrial-orange text-white px-8 py-4 text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition">Consultation</button>
+                    <button onclick="switchTab('knowledge')" class="border border-zinc-700 px-8 py-4 text-xs font-black uppercase tracking-widest hover:bg-zinc-800 transition">Technical Specs</button>
                 </div>
             </div>
-        </section>
-
-        <section class="py-24 px-6 lg:px-24">
-            <h2 class="text-3xl font-black uppercase italic mb-16 tracking-tighter">The <span class="text-industrial-orange">Fabrication Lifecycle</span></h2>
-            <div class="grid lg:grid-cols-4 gap-8">
-                <div class="relative pl-8 border-l border-white/10">
-                    <div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-industrial-orange"></div>
-                    <span class="text-industrial-orange font-black text-xs uppercase">Phase 01</span>
-                    <h4 class="text-xl font-bold italic mt-2 uppercase">Blueprint Audit</h4>
-                    <p class="text-slate-400 text-sm mt-4">Structural engineers review CAD drawings for load tolerances and weld-point efficiency.</p>
+            <div class="grid grid-cols-1 gap-4">
+                <div class="spec-card p-8">
+                    <h3 class="text-white font-black uppercase italic mb-2 tracking-tighter">High-Gauze Fabrication</h3>
+                    <p class="text-xs text-zinc-500 leading-relaxed">Specialized in heavy portal frames and multi-story mezzanine systems compliant with SANS 10162.</p>
                 </div>
-                <div class="relative pl-8 border-l border-white/10">
-                    <div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-slate-500"></div>
-                    <span class="text-slate-500 font-black text-xs uppercase">Phase 02</span>
-                    <h4 class="text-xl font-bold italic mt-2 uppercase">Precision Cut</h4>
-                    <p class="text-slate-400 text-sm mt-4">Plasma cutting and beam drilling to ±0.5mm accuracy before manual assembly.</p>
-                </div>
-                <div class="relative pl-8 border-l border-white/10">
-                    <div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-industrial-orange"></div>
-                    <span class="text-industrial-orange font-black text-xs uppercase">Phase 03</span>
-                    <h4 class="text-xl font-bold italic mt-2 uppercase">Core Fusion</h4>
-                    <p class="text-slate-400 text-sm mt-4">Certified MIG/TIG welding in our controlled J-Bay facility with multi-pass inspection.</p>
-                </div>
-                <div class="relative pl-8 border-l border-white/10">
-                    <div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-slate-500"></div>
-                    <span class="text-slate-500 font-black text-xs uppercase">Phase 04</span>
-                    <h4 class="text-xl font-bold italic mt-2 uppercase">Deployment</h4>
-                    <p class="text-slate-400 text-sm mt-4">Rigging and on-site structural erection by our dedicated mobile installation teams.</p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <main id="knowledge" class="tab-content py-12 px-6 lg:px-24">
-        <h2 class="text-5xl font-black uppercase italic mb-4">Industrial <span class="text-industrial-orange">IQ</span></h2>
-        <div class="grid lg:grid-cols-2 gap-12 mt-12">
-            <div class="glass-card p-8">
-                <h3 class="text-2xl font-black italic uppercase mb-6 text-industrial-orange">The Coastal Defense Guide</h3>
-                <ul class="space-y-6">
-                    <li class="flex gap-4">
-                        <span class="text-industrial-orange font-black">01.</span>
-                        <p class="text-sm text-slate-300"><strong>Duplex Stainless:</strong> Use for heavy marine exposure. It offers double the strength and higher corrosion resistance than standard 316.</p>
-                    </li>
-                    <li class="flex gap-4">
-                        <span class="text-industrial-orange font-black">02.</span>
-                        <p class="text-sm text-slate-300"><strong>Galvanic Corrosion:</strong> Never bolt aluminum to steel without a neoprene spacer. In coastal J-Bay, the metal will "bleed" and fail within months.</p>
-                    </li>
-                    <li class="flex gap-4">
-                        <span class="text-industrial-orange font-black">03.</span>
-                        <p class="text-sm text-slate-300"><strong>Weld Cleaning:</strong> Post-weld pickling and passivating of stainless steel is non-negotiable to restore the chromium oxide layer.</p>
-                    </li>
-                </ul>
-            </div>
-            <div class="bg-slate-900/50 p-8 rounded-2xl border border-white/5">
-                <h3 class="text-xl font-black italic uppercase mb-6">Material Database</h3>
-                <div class="space-y-4">
-                    <div class="flex justify-between text-xs border-b border-white/10 pb-2"><span>Carbon Steel S355</span><span class="text-industrial-orange">Structural High-Tensile</span></div>
-                    <div class="flex justify-between text-xs border-b border-white/10 pb-2"><span>Stainless 316L</span><span class="text-industrial-orange">Marine / Food Grade</span></div>
-                    <div class="flex justify-between text-xs border-b border-white/10 pb-2"><span>Aluminum 6082-T6</span><span class="text-industrial-orange">Lightweight Engineering</span></div>
+                <div class="spec-card p-8">
+                    <h3 class="text-white font-black uppercase italic mb-2 tracking-tighter">Corrosion Management</h3>
+                    <p class="text-xs text-zinc-500 leading-relaxed">Advanced protection for C5-M marine environments using Grade 316 Stainless.</p>
                 </div>
             </div>
         </div>
     </main>
 
-    <main id="whatsapp" class="tab-content py-12 px-6 lg:px-24">
-        <div class="max-w-3xl mx-auto glass-card p-8 lg:p-12">
-            <h2 class="text-3xl font-black uppercase italic mb-8">Project <span class="text-industrial-orange">Manifest</span></h2>
-            <form onsubmit="event.preventDefault(); sendWhatsApp();" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div><label class="text-[10px] font-black uppercase text-slate-500 block mb-2">Company Name</label><input type="text" id="wa_name" required class="w-full p-4 rounded-lg"></div>
-                <div><label class="text-[10px] font-black uppercase text-slate-500 block mb-2">Industry</label><select id="wa_industry" class="w-full p-4 rounded-lg"><option>Structural Construction</option><option>Marine / Automotive</option><option>Architectural</option></select></div>
-                <div class="md:col-span-2"><label class="text-[10px] font-black uppercase text-slate-500 block mb-2">Project Scope</label><select id="wa_type" class="w-full p-4 rounded-lg"><option>Structural Steel Fabrication</option><option>Stainless Steel Solutions</option><option>High-Pressure Pipework</option></select></div>
-                <div><label class="text-[10px] font-black uppercase text-slate-500 block mb-2">Estimated Tonnage</label><input type="text" id="wa_dims" placeholder="e.g. 5 Tons" class="w-full p-4 rounded-lg"></div>
-                <div><label class="text-[10px] font-black uppercase text-slate-500 block mb-2">Lead Time</label><select id="wa_time" class="w-full p-4 rounded-lg"><option>Urgent (Maintenance)</option><option>Standard (3-6 Weeks)</option></select></div>
-                <div class="md:col-span-2"><label class="text-[10px] font-black uppercase text-slate-500 block mb-2">Technical Specs</label><textarea id="wa_specs" class="w-full p-4 rounded-lg h-24"></textarea></div>
-                <div class="md:col-span-2 bg-black/40 p-4 rounded-lg border border-white/5 flex gap-4">
-                    <input type="checkbox" id="popi" required class="w-5 h-5 mt-1">
-                    <label for="popi" class="text-[10px] text-slate-400"><strong>POPI CONSENT:</strong> I agree to the processing of my technical data by J-Bay Welders for the purpose of a formal quotation in line with South African privacy laws.</label>
+    <main id="knowledge" class="tab-content px-8">
+        <div class="max-w-5xl mx-auto">
+            <h2 class="text-4xl font-black uppercase italic mb-12 border-b border-zinc-800 pb-4">Educational <span class="text-industrial-orange">Whitepapers</span></h2>
+            <div class="grid gap-12">
+                <section>
+                    <h4 class="text-industrial-orange font-bold uppercase tracking-widest text-sm mb-4">Metallurgy: The Coastal Threshold</h4>
+                    <p class="text-zinc-300 mb-6">In J-Bay, the air carries high chloride content. We advocate for <strong>Grade 316L</strong> which contains Molybdenum for superior resistance.</p>
+                    
+                    <div class="mt-8 p-6 bg-slate-900/50 border border-zinc-800 italic text-zinc-400 text-sm">
+                        "Structural integrity is the geometry of the fusion zone." — Lead Architect
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <main id="whatsapp" class="tab-content px-8">
+        <div class="max-w-2xl mx-auto glass-card p-12">
+            <h2 class="text-3xl font-black uppercase italic mb-8">Technical <span class="text-industrial-orange">Manifest</span></h2>
+            <form onsubmit="event.preventDefault(); sendWhatsApp();" class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <input type="text" id="wa_name" placeholder="Principal / Organization" required class="w-full">
+                    <select id="wa_type" class="w-full">
+                        <option>Structural Portal Framing</option>
+                        <option>Industrial Mezzanine Systems</option>
+                        <option>Coastal Balustrade Engineering</option>
+                    </select>
                 </div>
-                <button type="submit" class="md:col-span-2 bg-industrial-orange py-5 font-black uppercase text-white tracking-widest hover:bg-white hover:text-orange-600 transition-all">Submit Technical Manifest</button>
+                <textarea id="wa_specs" placeholder="Detailed Project Scope..." class="w-full h-40"></textarea>
+                <button type="submit" class="w-full bg-industrial-orange py-5 font-black uppercase text-white tracking-[0.5em] hover:bg-white hover:text-black transition">Transmit Request</button>
             </form>
         </div>
     </main>
 
-    <main id="arcade" class="tab-content py-8 px-4">
-        <div class="flex flex-col items-center max-w-md mx-auto">
-            <h2 class="text-2xl font-black italic uppercase mb-2">Steel <span class="text-industrial-orange">Stacker</span></h2>
-            
-            <div class="flex gap-2 mb-6 bg-slate-900 p-1 rounded-xl border border-white/10 w-full">
-                <button onclick="setDifficulty(1000, this)" class="flex-1 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest bg-industrial-orange text-white">Easy</button>
-                <button onclick="setDifficulty(500, this)" class="flex-1 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest text-slate-500">Medium</button>
-                <button onclick="setDifficulty(200, this)" class="flex-1 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest text-slate-500">Hard</button>
+    <main id="arcade" class="tab-content">
+        <div class="flex flex-col items-center">
+            <div class="flex gap-4 mb-8 bg-slate-900 p-2 rounded border border-zinc-800">
+                <button onclick="setDifficulty(1000, this)" class="diff-btn px-6 py-2 text-[10px] font-black uppercase bg-industrial-orange text-white">Easy</button>
+                <button onclick="setDifficulty(500, this)" class="diff-btn px-6 py-2 text-[10px] font-black uppercase text-zinc-500">Medium</button>
+                <button onclick="setDifficulty(200, this)" class="diff-btn px-6 py-2 text-[10px] font-black uppercase text-zinc-500">Hard</button>
             </div>
 
-            <canvas id="tetris" width="240" height="400"></canvas>
-            
-            <div class="flex justify-between w-full mt-4 px-2">
-                <p class="font-black text-industrial-orange italic text-sm">FORGE LOAD: <span id="score-mobile">0</span> KG</p>
-                <button onclick="resetGame()" class="text-[10px] font-black uppercase text-slate-500 underline">Reset Forge</button>
-            </div>
-
-            <div class="mt-8 flex flex-col items-center gap-2">
-                <div class="key-btn" onclick="handleMove('up')">↑</div>
-                <div class="flex gap-2">
-                    <div class="key-btn" onclick="handleMove('left')">←</div>
-                    <div class="key-btn" onclick="handleMove('down')">↓</div>
-                    <div class="key-btn" onclick="handleMove('right')">→</div>
+            <div class="flex gap-8 p-8 glass-card">
+                <div class="relative">
+                    <canvas id="tetris" width="240" height="400"></canvas>
+                    <div id="game-over" class="absolute inset-0 bg-black/90 flex flex-col items-center justify-center hidden">
+                        <p class="text-industrial-orange font-black uppercase tracking-widest mb-4">Structural Failure</p>
+                        <button onclick="resetGame()" class="text-[10px] font-black underline uppercase text-white">Rebuild Stack</button>
+                    </div>
                 </div>
-                <p class="text-[9px] text-slate-500 font-bold uppercase mt-4">Desktop: Use Arrow Keys to Play</p>
+                <div class="flex flex-col gap-6">
+                    <div class="text-center p-4 border border-zinc-800">
+                        <p class="text-[10px] font-bold text-zinc-500 uppercase mb-2">Next Component</p>
+                        <canvas id="next" width="80" height="80" class="bg-black border border-zinc-900"></canvas>
+                    </div>
+                    <div class="text-center p-4 border border-zinc-800">
+                        <p class="text-[10px] font-bold text-zinc-500 uppercase mb-1">Steel Load</p>
+                        <p id="score" class="text-2xl font-black text-industrial-orange italic">0</p>
+                        <p class="text-[8px] text-zinc-500 uppercase">TONS</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="key-cluster mt-12 mb-20">
+                <div style="grid-area: up" class="key-btn" onclick="handleMove('up')">↻</div>
+                <div style="grid-area: left" class="key-btn" onclick="handleMove('left')">←</div>
+                <div style="grid-area: down" class="key-btn" onclick="handleMove('down')">↓</div>
+                <div style="grid-area: right" class="key-btn" onclick="handleMove('right')">→</div>
             </div>
         </div>
     </main>
 
+    <a href="https://wa.me/27663544654?text=Professional%20Technical%20Consultation%20Requested" target="_blank" class="wa-float">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-2.277 0-4.131 1.841-4.131 4.102 0 1.259.576 2.38 1.48 3.125l-.26 1.439 1.48-.396c.451.272.973.431 1.43.431 2.277 0 4.132-1.841 4.132-4.101 0-2.262-1.855-4.101-4.131-4.101zm2.383 5.86c-.104.286-.606.549-.832.585-.226.036-.452.057-.866-.104-.413-.162-.686-.316-1.127-.591-.564-.352-.924-.772-1.123-1.126-.199-.354-.202-.638-.035-.851.168-.214.37-.251.492-.251.123 0 .204.004.263.007.065.003.149-.026.233.179.09.219.307.753.334.811.028.057.045.124.007.2-.038.075-.057.123-.113.189-.057.065-.123.146-.176.196-.06.057-.123.12-.054.239.069.12.308.508.66 0 .822.316.281.583.473.66.09.022.176.022.242-.015.066-.037.284-.33.361-.444.076-.113.153-.095.258-.057.106.038.673.316.788.373.116.057.194.084.221.132.028.048.028.279-.076.565zM12.011 0C5.384 0 0 5.37 0 11.975c0 2.112.547 4.162 1.588 5.957L.058 24l6.23-1.63c1.734.945 3.693 1.445 5.703 1.445 6.628 0 12.011-5.37 12.011-11.975S18.639 0 12.011 0zm0 21.844c-1.832 0-3.633-.493-5.203-1.425l-.372-.222-3.868 1.013 1.033-3.733-.243-.388c-.997-1.583-1.523-3.414-1.523-5.304 0-5.59 4.542-10.133 10.125-10.133s10.125 4.543 10.125 10.133-4.542 10.133-10.125 10.133z"/></svg>
+        <span class="wa-text">Contact Workshop</span>
+    </a>
+
     <script>
+        // --- LOGO WELDING ANIMATION ---
+        const wCanvas = document.getElementById('weldCanvas');
+        const wCtx = wCanvas.getContext('2d');
+        let sparks = [];
+
+        class Spark {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = (Math.random() - 0.5) * 8;
+                this.speedY = (Math.random() - 0.8) * 10;
+                this.gravity = 0.2;
+                this.life = 1;
+                this.decay = Math.random() * 0.02 + 0.01;
+            }
+            update() {
+                this.speedY += this.gravity;
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= this.decay;
+            }
+            draw() {
+                wCtx.fillStyle = `rgba(255, ${Math.floor(this.life * 160 + 50)}, 0, ${this.life})`;
+                wCtx.beginPath();
+                wCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                wCtx.fill();
+                // Arc Flash
+                wCtx.shadowBlur = 10;
+                wCtx.shadowColor = "white";
+            }
+        }
+
+        function animateWeld() {
+            wCtx.clearRect(0, 0, wCanvas.width, wCanvas.height);
+            
+            // Generate sparks at the "weld point" (between J and BAY)
+            if (Math.random() > 0.3) {
+                for(let i=0; i<3; i++) sparks.push(new Spark(85, 30));
+            }
+
+            // Draw Electrode
+            wCtx.strokeStyle = "#475569";
+            wCtx.lineWidth = 3;
+            wCtx.beginPath();
+            wCtx.moveTo(110, 0);
+            wCtx.lineTo(87, 28);
+            wCtx.stroke();
+
+            // Draw Arc Flash
+            wCtx.fillStyle = "rgba(255, 255, 255, 0.8)";
+            wCtx.beginPath();
+            wCtx.arc(85, 30, Math.random() * 5 + 2, 0, Math.PI * 2);
+            wCtx.fill();
+
+            sparks.forEach((s, i) => {
+                s.update();
+                s.draw();
+                if (s.life <= 0) sparks.splice(i, 1);
+            });
+            wCtx.shadowBlur = 0;
+            requestAnimationFrame(animateWeld);
+        }
+        animateWeld();
+
+        // --- UI FUNCTIONS ---
         function switchTab(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active-tab'));
@@ -220,81 +297,167 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // WHATSAPP
         function sendWhatsApp() {
             const name = document.getElementById('wa_name').value;
-            const industry = document.getElementById('wa_industry').value;
             const type = document.getElementById('wa_type').value;
-            const msg = `*J-BAY WELDERS MANIFEST*%0A*Client:* ${name}%0A*Industry:* ${industry}%0A*Service:* ${type}`;
+            const msg = `*J-BAY WELDERS BRIEF*%0A*Client:* ${name}%0A*Scope:* ${type}`;
             window.open(`https://wa.me/27663544654?text=${msg}`, '_blank');
         }
 
         // --- TETRIS ENGINE ---
         const canvas = document.getElementById('tetris');
         const context = canvas.getContext('2d');
+        const nextCanvas = document.getElementById('next');
+        const nCtx = nextCanvas.getContext('2d');
         context.scale(20, 20);
+        nCtx.scale(20, 20);
+
         const PIECES = {
             'I': [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]],
             'L': [[0,2,0],[0,2,0],[0,2,2]],
+            'J': [[0,3,0],[0,3,0],[3,3,0]],
             'O': [[4,4],[4,4]],
-            'T': [[0,7,0],[7,7,7],[0,0,0]],
-            'S': [[0,6,6],[6,6,0],[0,0,0]]
+            'T': [[0,5,0],[5,5,5],[0,0,0]],
+            'S': [[0,6,6],[6,6,0],[0,0,0]],
+            'Z': [[7,7,0],[0,7,7],[0,0,0]]
         };
-        const COLORS = [null, '#38bdf8', '#f97316', '#818cf8', '#facc15', '#ef4444', '#4ade80', '#a855f7'];
+        const COLORS = [null, '#0ea5e9', '#f97316', '#6366f1', '#eab308', '#a855f7', '#22c55e', '#ef4444'];
+
         let arena = Array.from({length: 20}, () => Array(12).fill(0));
-        let player = { pos: {x: 4, y: 0}, matrix: PIECES['I'], score: 0 };
+        let player = { pos: {x: 0, y: 0}, matrix: null, next: null, score: 0 };
         let dropInterval = 1000;
-        let dropCounter = 0; 
+        let dropCounter = 0;
         let lastTime = 0;
 
-        function setDifficulty(speed, btn) {
-            dropInterval = speed;
-            const btns = btn.parentElement.children;
-            for(let b of btns) { b.classList.remove('bg-industrial-orange', 'text-white'); b.classList.add('text-slate-500'); }
-            btn.classList.add('bg-industrial-orange', 'text-white');
-            resetGame();
+        function collide(arena, player) {
+            const [m, o] = [player.matrix, player.pos];
+            for (let y = 0; y < m.length; ++y) {
+                for (let x = 0; x < m[y].length; ++x) {
+                    if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) return true;
+                }
+            }
+            return false;
         }
 
-        function draw() {
-            context.fillStyle = '#000'; context.fillRect(0,0,12,20);
-            player.matrix.forEach((r,y)=>r.forEach((v,x)=>{if(v){context.fillStyle=COLORS[v]; context.fillRect(x+player.pos.x, y+player.pos.y,1,1)}}));
-            arena.forEach((r,y)=>r.forEach((v,x)=>{if(v){context.fillStyle=COLORS[v]; context.fillRect(x,y,1,1)}}));
+        function rotate(matrix) {
+            for (let y = 0; y < matrix.length; ++y) {
+                for (let x = 0; x < y; ++x) [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+            }
+            matrix.forEach(row => row.reverse());
+        }
+
+        function playerReset() {
+            const pieces = 'ILJOTSZ';
+            if (!player.next) player.next = PIECES[pieces[pieces.length * Math.random() | 0]];
+            player.matrix = player.next;
+            player.next = PIECES[pieces[pieces.length * Math.random() | 0]];
+            player.pos.y = 0;
+            player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
+            if (collide(arena, player)) {
+                document.getElementById('game-over').classList.remove('hidden');
+                arena.forEach(row => row.fill(0));
+            }
+            drawNext();
         }
 
         function playerDrop() {
             player.pos.y++;
-            if(collide(arena, player)) { player.pos.y--; merge(arena,player); playerReset(); arenaSweep(); }
+            if (collide(arena, player)) {
+                player.pos.y--;
+                player.matrix.forEach((row, y) => {
+                    row.forEach((value, x) => {
+                        if (value !== 0) arena[y + player.pos.y][x + player.pos.x] = value;
+                    });
+                });
+                playerReset();
+                arenaSweep();
+            }
             dropCounter = 0;
         }
 
-        function collide(a,p){const [m,o]=[p.matrix,p.pos];for(let y=0;y<m.length;++y)for(let x=0;x<m[y].length;++x)if(m[y][x]!==0&&(a[y+o.y]&&a[y+o.y][x+o.x])!==0)return true;return false;}
-        function merge(a,p){p.matrix.forEach((r,y)=>r.forEach((v,x)=>{if(v)a[y+p.pos.y][x+p.pos.x]=v}))}
-        function arenaSweep(){outer:for(let y=arena.length-1;y>0;--y){for(let x=0;x<arena[y].length;++x)if(arena[y][x]===0)continue outer;arena.splice(y,1);arena.unshift(new Array(12).fill(0));player.score+=100;y++;} updateScore();}
-        function playerReset(){const p='ILOTS'; player.matrix=PIECES[p[p.length*Math.random()|0]]; player.pos.y=0; player.pos.x=4; if(collide(arena,player)) arena.forEach(r=>r.fill(0));}
-        function updateScore(){ document.getElementById('score-mobile').innerText=player.score; }
-        
-        function handleMove(d){
-            if(d==='left'){player.pos.x--;if(collide(arena,player))player.pos.x++}
-            if(d==='right'){player.pos.x++;if(collide(arena,player))player.pos.x--}
-            if(d==='down')playerDrop();
-            if(d==='up'){
-                const m=player.matrix;
-                for(let y=0;y<m.length;++y)for(let x=0;x<y;++x)[m[x][y],m[y][x]]=[m[y][x],m[x][y]];
-                m.forEach(r=>r.reverse());
-                if(collide(arena,player)) { m.forEach(r=>r.reverse()); for(let y=0;y<m.length;++y)for(let x=0;x<y;++x)[m[x][y],m[y][x]]=[m[y][x],m[x][y]]; }
+        function arenaSweep() {
+            outer: for (let y = arena.length - 1; y > 0; --y) {
+                for (let x = 0; x < arena[y].length; ++x) {
+                    if (arena[y][x] === 0) continue outer;
+                }
+                const row = arena.splice(y, 1)[0].fill(0);
+                arena.unshift(row);
+                player.score += 10;
+                y++;
+            }
+            document.getElementById('score').innerText = player.score;
+        }
+
+        function handleMove(dir) {
+            if (dir === 'left') { player.pos.x--; if (collide(arena, player)) player.pos.x++; }
+            if (dir === 'right') { player.pos.x++; if (collide(arena, player)) player.pos.x--; }
+            if (dir === 'down') playerDrop();
+            if (dir === 'up') {
+                const pos = player.pos.x;
+                rotate(player.matrix);
+                if (collide(arena, player)) player.pos.x = pos;
             }
         }
 
-        // Keyboard Listener
-        document.addEventListener('keydown', event => {
-            if (event.keyCode === 37) handleMove('left');
-            else if (event.keyCode === 39) handleMove('right');
-            else if (event.keyCode === 40) handleMove('down');
-            else if (event.keyCode === 38) handleMove('up');
+        function drawNext() {
+            nCtx.fillStyle = '#000';
+            nCtx.fillRect(0,0,4,4);
+            player.next.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        nCtx.fillStyle = COLORS[value];
+                        nCtx.fillRect(x, y, 1, 1);
+                    }
+                });
+            });
+        }
+
+        function draw() {
+            context.fillStyle = '#000';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            drawMatrix(arena, {x: 0, y: 0});
+            drawMatrix(player.matrix, player.pos);
+        }
+
+        function drawMatrix(matrix, offset) {
+            matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        context.fillStyle = COLORS[value];
+                        context.fillRect(x + offset.x, y + offset.y, 1, 1);
+                    }
+                });
+            });
+        }
+
+        function update(time = 0) {
+            const deltaTime = time - lastTime;
+            lastTime = time;
+            dropCounter += deltaTime;
+            if (dropCounter > dropInterval) playerDrop();
+            draw();
+            requestAnimationFrame(update);
+        }
+
+        function resetGame() {
+            document.getElementById('game-over').classList.add('hidden');
+            arena.forEach(row => row.fill(0));
+            player.score = 0;
+            playerReset();
+            document.getElementById('score').innerText = '0';
+        }
+
+        document.addEventListener('keydown', e => {
+            if ([37, 38, 39, 40].includes(e.keyCode)) {
+                e.preventDefault();
+                if (e.keyCode === 37) handleMove('left');
+                if (e.keyCode === 39) handleMove('right');
+                if (e.keyCode === 40) handleMove('down');
+                if (e.keyCode === 38) handleMove('up');
+            }
         });
 
-        function resetGame(){arena.forEach(r=>r.fill(0)); player.score=0; updateScore(); playerReset();}
-        function update(t=0){const dt=t-lastTime; lastTime=t; dropCounter+=dt; if(dropCounter>dropInterval)playerDrop(); draw(); requestAnimationFrame(update);}
+        playerReset();
         update();
     </script>
 </body>
