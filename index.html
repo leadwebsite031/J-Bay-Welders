@@ -3,240 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J-Bay Welders | Precision Engineering & Marine Fabrication</title>
+    <title>J-Bay Welders | Premier Industrial Engineering</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
-        .hero-bg { 
-            background: linear-gradient(rgba(15,23,42,0.85), rgba(15,23,42,0.85)), 
-            url('https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=1920'); 
-            background-size: cover; background-position: center; 
-        }
-        .review-card { display: none; }
-        .review-card.active { display: block; animation: flipIn 0.6s ease-out; }
+        body { font-family: 'Outfit', sans-serif; scroll-behavior: smooth; overflow-x: hidden; background-color: #020617; margin: 0; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         
-        @keyframes flipIn {
-            0% { transform: perspective(400px) rotateX(90deg); opacity: 0; }
-            100% { transform: perspective(400px) rotateX(0deg); opacity: 1; }
+        .hero-gradient { 
+            background: linear-gradient(90deg, #020617 45%, rgba(15, 23, 42, 0.2) 100%), 
+            url('https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=1920'); 
+            background-size: cover; background-position: center;
         }
 
-        /* Dropzone Glow */
-        #dropZone.dragover { border-color: #ea580c; background: rgba(234, 88, 12, 0.05); }
+        /* --- MICROWORKER ANIMATIONS --- */
+        @keyframes arc-burn { 0%, 100% { opacity: 0; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.5); filter: blur(1px); } }
+        .arc-flare { animation: arc-burn 0.05s infinite; fill: #60a5fa; }
+        
+        @keyframes laser-pulse { 0% { width: 0; opacity: 0; } 50% { width: 80px; opacity: 1; } 100% { width: 80px; opacity: 0; } }
+        .laser-beam { animation: laser-pulse 2s infinite; stroke: #ef4444; stroke-width: 1; }
+
+        @keyframes hoist { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        .hoist-action { animation: hoist 3s ease-in-out infinite; }
+
+        /* --- TETRIS ARCADE --- */
+        #tetris-container { position: relative; width: 280px; margin: 0 auto; background: #000; border: 6px solid #1e293b; box-shadow: 0 0 50px rgba(249, 115, 22, 0.15); touch-action: none; }
+        canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+        .game-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 20; }
+
+        .nav-btn { font-size: 11px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; transition: all 0.3s; padding: 10px 0; border-bottom: 2px solid transparent; }
+        .active-tab { color: #f97316 !important; border-bottom: 2px solid #f97316; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body>
 
-    <nav class="bg-white/90 backdrop-blur-md border-b sticky top-0 z-[100] px-6 py-4 flex justify-between items-center">
-        <div class="text-2xl font-black italic tracking-tighter uppercase">
-            J-BAY <span class="text-orange-600">WELDERS</span>
+    <nav class="sticky top-0 z-[1000] px-6 lg:px-16 py-6 flex justify-between items-center bg-slate-950/90 backdrop-blur-md border-b border-white/10">
+        <div class="flex items-center gap-4">
+            <div class="text-2xl font-black tracking-tighter uppercase leading-none italic">J-BAY <br><span class="text-orange-600">WELDERS</span></div>
         </div>
-        <div class="hidden md:flex gap-8 font-bold text-sm uppercase tracking-widest">
-            <a href="#services" class="hover:text-orange-600 transition">Services</a>
-            <a href="#reviews" class="hover:text-orange-600 transition">Reviews</a>
-            <a href="#quote" class="bg-slate-900 text-white px-6 py-2 rounded-sm hover:bg-orange-600 transition">Get A Quote</a>
+        <div class="hidden lg:flex gap-10 items-center">
+            <button onclick="switchTab('home')" class="nav-btn active-tab" id="btn-home">Portal</button>
+            <button onclick="switchTab('craft')" class="nav-btn" id="btn-craft">The Craft</button>
+            <button onclick="switchTab('arcade')" class="nav-btn" id="btn-arcade">Arcade</button>
+            <a href="https://wa.me/27663544654" class="bg-orange-600 text-white px-6 py-2 rounded-sm font-black text-[10px] tracking-widest">URGENT BRIEF</a>
         </div>
     </nav>
 
-    <header class="hero-bg h-[85vh] flex items-center justify-center text-center text-white px-6">
-        <div class="max-w-4xl">
-            <span class="text-orange-500 font-bold tracking-[0.3em] uppercase mb-4 block">Est. Jeffreys Bay</span>
-            <h1 class="text-6xl md:text-8xl font-black mb-6 leading-none">HEAVY DUTY <br>PRECISION.</h1>
-            <p class="text-xl md:text-2xl text-slate-300 mb-10 max-w-2xl mx-auto font-light leading-relaxed">
-                Specialists in Marine-Grade Stainless, Aluminum Fabrication, and Structural Engineering for the toughest coastal conditions.
-            </p>
-            <a href="#quote" class="bg-orange-600 hover:bg-orange-700 text-white px-10 py-5 rounded-sm font-black text-lg transition-all transform hover:scale-105 inline-block">
-                START YOUR PROJECT
-            </a>
-        </div>
-    </header>
-
-    <section id="services" class="py-24 px-6 max-w-7xl mx-auto">
-        <div class="mb-16">
-            <h2 class="text-4xl font-black uppercase tracking-tighter italic">Core Capabilities</h2>
-            <div class="w-20 h-2 bg-orange-600 mt-2"></div>
-        </div>
-
-        <div class="grid md:grid-cols-3 gap-10">
-            <div class="bg-white border-t-4 border-orange-600 p-8 shadow-xl hover:-translate-y-2 transition-all duration-300">
-                <div class="text-4xl mb-6">⚓</div>
-                <h3 class="text-xl font-bold mb-4">Marine Stainless</h3>
-                <p class="text-slate-500 leading-relaxed text-sm">We use 316-grade stainless steel for balustrades and fittings that resist the J-Bay salt corrosion forever.</p>
+    <main id="home" class="tab-content active">
+        <section class="hero-gradient h-[85vh] flex items-center px-6 lg:px-24">
+            <div class="max-w-4xl">
+                <p class="text-orange-500 font-black tracking-[1em] uppercase text-xs mb-4">Established Excellence</p>
+                <h1 class="text-7xl lg:text-[11rem] font-black leading-[0.85] uppercase mb-10 italic">Steel <br><span class="text-orange-600">Force.</span></h1>
+                <p class="text-xl max-w-xl text-slate-300 font-light leading-relaxed border-l-4 border-orange-600 pl-6">Jeffreys Bay's elite structural firm. We specialize in high-tensile security, mirror-finish marine stainless, and corporate engineering.</p>
             </div>
-            <div class="bg-white border-t-4 border-slate-900 p-8 shadow-xl hover:-translate-y-2 transition-all duration-300">
-                <div class="text-4xl mb-6">🏗️</div>
-                <h3 class="text-xl font-bold mb-4">Structural Steel</h3>
-                <p class="text-slate-500 leading-relaxed text-sm">Industrial gates, security fencing, and structural beams for high-end residential and commercial builds.</p>
-            </div>
-            <div class="bg-white border-t-4 border-orange-600 p-8 shadow-xl hover:-translate-y-2 transition-all duration-300">
-                <div class="text-4xl mb-6">⚙️</div>
-                <h3 class="text-xl font-bold mb-4">Custom Fabrication</h3>
-                <p class="text-slate-500 leading-relaxed text-sm">Aluminum TIG welding, custom 4x4 canopy frames, and precision trailer modifications built to spec.</p>
-            </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
-    <section id="quote" class="py-24 bg-slate-900 text-white overflow-hidden relative">
-        <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 relative z-10">
-            <div>
-                <h2 class="text-5xl font-black mb-8 uppercase italic leading-tight">Request a <br><span class="text-orange-600">Site Inspection</span></h2>
-                <p class="text-slate-400 text-lg mb-8">Paste a photo of your repair or upload your design drawings. Our team reviews every lead within 2 hours.</p>
-                
-                <div class="space-y-6">
-                    <div class="flex items-center gap-4 border-l-2 border-orange-600 pl-4">
-                        <div>
-                            <p class="text-sm uppercase text-slate-500 font-bold">Location</p>
-                            <p class="font-bold">Shop 3, Industrial Area, J-Bay</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4 border-l-2 border-orange-600 pl-4">
-                        <div>
-                            <p class="text-sm uppercase text-slate-500 font-bold">Emergency Repairs</p>
-                            <p class="font-bold">+27 72 624 3609</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <form id="leadForm" class="bg-white p-8 rounded-sm text-slate-900 space-y-4 shadow-2xl">
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="text" id="name" placeholder="Name" required class="w-full p-4 border rounded-sm bg-slate-50 focus:ring-2 focus:ring-orange-600 outline-none">
-                    <input type="tel" id="phone" placeholder="Contact Number" required class="w-full p-4 border rounded-sm bg-slate-50 focus:ring-2 focus:ring-orange-600 outline-none">
-                </div>
-                <select id="service" class="w-full p-4 border rounded-sm bg-slate-50 font-bold">
-                    <option>Marine Stainless Steel</option>
-                    <option>Structural Steel/Gates</option>
-                    <option>Aluminum/Trailer Work</option>
-                    <option>Rust Repair & Restoration</option>
-                </select>
-                <textarea id="description" placeholder="Provide details about the job..." required class="w-full p-4 border rounded-sm bg-slate-50 h-32 outline-none focus:ring-2 focus:ring-orange-600"></textarea>
-                
-                <div id="dropZone" class="border-2 border-dashed border-slate-300 p-8 text-center rounded-sm relative hover:bg-slate-50 transition-all cursor-pointer group">
-                    <input type="file" id="imageInput" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
-                    <div id="uploadLabel">
-                        <p class="font-bold text-slate-700 group-hover:text-orange-600 transition">ATTACH PHOTO OR PASTE IMAGE</p>
-                        <p class="text-xs text-slate-400">Click to browse or Ctrl+V to paste screenshot</p>
-                    </div>
-                </div>
-
-                <button type="submit" id="submitBtn" class="w-full bg-orange-600 text-white font-black py-5 rounded-sm uppercase tracking-widest hover:bg-slate-900 transition-all duration-300">
-                    Submit Project to Telegram
-                </button>
-            </form>
-        </div>
-    </section>
-
-    <section id="reviews" class="py-24 bg-white px-6">
-        <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-3xl font-black mb-12 uppercase italic tracking-widest">Client Reviews</h2>
+    <main id="craft" class="tab-content py-24 px-6 lg:px-24">
+        <div class="max-w-6xl mx-auto text-center">
+            <h2 class="text-6xl font-black uppercase italic mb-20">The <span class="text-orange-600">Forge</span> Logic</h2>
             
-            <div class="relative h-64 flex items-center justify-center">
-                <div class="review-card active px-6">
-                    <p class="text-2xl italic font-light text-slate-600 mb-6">"The only welders in J-Bay I trust with my boat. Their marine-grade stainless work is world-class."</p>
-                    <h4 class="font-black text-orange-600 uppercase">— Pieter Venter, Marina Martinique</h4>
+            <div class="grid lg:grid-cols-3 gap-8">
+                <div class="bg-slate-900/40 p-8 border border-white/5 rounded-2xl relative overflow-hidden">
+                    <svg viewBox="0 0 200 120" class="w-full h-32 mb-6">
+                        <circle cx="40" cy="80" r="10" fill="#f97316"/> <rect x="35" y="90" width="10" height="20" rx="5" fill="#1e293b"/> <rect x="45" y="85" width="15" height="5" fill="#475569"/>
+                        <line x1="60" y1="87.5" x2="140" y2="87.5" class="laser-beam"/>
+                        <rect x="140" y="50" width="5" height="60" fill="#334155"/> </svg>
+                    <h4 class="font-black text-orange-500 uppercase italic tracking-tighter text-xl">01. Laser Survey</h4>
+                    <p class="text-xs text-slate-400 mt-2 uppercase font-bold tracking-widest">Digital site mapping</p>
                 </div>
-                <div class="review-card px-6">
-                    <p class="text-2xl italic font-light text-slate-600 mb-6">"Fast, professional, and incredibly strong work on our new security gates. Highly recommended!"</p>
-                    <h4 class="font-black text-orange-600 uppercase">— Sarah Jenkins, Wavecrest</h4>
+
+                <div class="bg-slate-900/40 p-8 border border-white/5 rounded-2xl relative overflow-hidden">
+                    <svg viewBox="0 0 200 120" class="w-full h-32 mb-6">
+                        <circle cx="100" cy="70" r="10" fill="#f97316"/> 
+                        <path d="M90,80 L110,80 L115,110 L85,110 Z" fill="#1e293b"/> <rect x="92" y="65" width="16" height="12" fill="#020617" stroke="#f97316"/> <rect x="60" y="110" width="80" height="4" fill="#64748b"/>
+                        <circle cx="100" cy="110" r="8" class="arc-flare"/>
+                        <circle cx="100" cy="110" r="3" fill="white"/>
+                    </svg>
+                    <h4 class="font-black text-orange-500 uppercase italic tracking-tighter text-xl">02. Arc Fusion</h4>
+                    <p class="text-xs text-slate-400 mt-2 uppercase font-bold tracking-widest">SABS Certified Synthesis</p>
                 </div>
-                <div class="review-card px-6">
-                    <p class="text-2xl italic font-light text-slate-600 mb-6">"Fixed my off-road trailer on short notice. Superior TIG welding and very fair pricing."</p>
-                    <h4 class="font-black text-orange-600 uppercase">— Johan Smith, Loots Park</h4>
+
+                <div class="bg-slate-900/40 p-8 border border-white/5 rounded-2xl relative overflow-hidden">
+                    <svg viewBox="0 0 200 120" class="w-full h-32 mb-6">
+                        <circle cx="150" cy="90" r="10" fill="#f97316"/>
+                        <rect x="145" y="100" width="10" height="15" fill="#1e293b"/>
+                        <line x1="100" y1="0" x2="100" y2="60" stroke="#475569" stroke-width="2"/>
+                        <g class="hoist-action">
+                            <rect x="50" y="60" width="100" height="12" fill="#f97316"/>
+                            <path d="M50,60 L50,72 L55,72 L55,60 Z" fill="#ea580c"/>
+                        </g>
+                    </svg>
+                    <h4 class="font-black text-orange-500 uppercase italic tracking-tighter text-xl">03. Structural Fit</h4>
+                    <p class="text-xs text-slate-400 mt-2 uppercase font-bold tracking-widest">Heavy-Duty Installation</p>
                 </div>
-            </div>
-            
-            <div class="flex justify-center gap-2 mt-8">
-                <div class="w-3 h-3 bg-orange-600 rounded-full"></div>
-                <div class="w-3 h-3 bg-slate-200 rounded-full"></div>
-                <div class="w-3 h-3 bg-slate-200 rounded-full"></div>
             </div>
         </div>
-    </section>
+    </main>
 
-    <footer class="bg-slate-900 py-12 text-center text-slate-600 border-t border-slate-800">
-        <div class="text-xl font-black italic mb-4 text-white">J-BAY WELDERS</div>
-        <p class="text-sm tracking-widest uppercase">Industrial Area, Jeffreys Bay, South Africa</p>
-        <p class="mt-4 opacity-50">&copy; 2026 Professional System Build. All Rights Reserved.</p>
-    </footer>
+    <main id="arcade" class="tab-content py-24 px-6 lg:px-24 bg-slate-950 min-h-screen">
+        <div class="max-w-7xl mx-auto grid lg:grid-cols-3 gap-12">
+            
+            <div class="lg:col-span-1">
+                <div id="reg-form" class="bg-slate-900 p-8 border-l-4 border-orange-600">
+                    <h3 class="text-3xl font-black uppercase italic mb-6">Client <span class="text-orange-600">On-Boarding</span></h3>
+                    <p class="text-xs text-slate-400 mb-6 uppercase tracking-widest">Enter details to join the leaderboard & unlock rewards.</p>
+                    <form id="clientForm" class="space-y-4">
+                        <input type="text" id="clientName" placeholder="NAME / COMPANY" required class="w-full bg-slate-800 p-4 outline-none border border-white/5 font-bold text-sm text-white">
+                        <input type="email" id="clientEmail" placeholder="EMAIL ADDRESS" required class="w-full bg-slate-800 p-4 outline-none border border-white/5 font-bold text-sm text-white">
+                        <button type="submit" class="w-full bg-orange-600 py-4 font-black uppercase text-xs tracking-[0.2em]">Register for Competition</button>
+                    </form>
+                </div>
+                
+                <div class="mt-8 p-6 bg-white/5 rounded">
+                    <h4 class="font-black text-orange-500 italic mb-2 text-sm uppercase">Month-End Bonus:</h4>
+                    <p class="text-[11px] text-slate-300 uppercase tracking-widest leading-relaxed">The monthly champion wins a structural safety audit + 5% discount on upcoming fabrications.</p>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1 flex flex-col items-center">
+                <div id="tetris-container">
+                    <canvas id="tetris" width="240" height="400"></canvas>
+                    <div id="game-overlay" class="game-overlay text-center">
+                        <h3 class="text-4xl font-black mb-2 italic">ARC BROKEN</h3>
+                        <p class="text-orange-500 text-xl font-bold mb-6">SCORE: <span id="final-score">0</span></p>
+                        <button onclick="resetGame()" class="bg-orange-600 px-8 py-3 font-black uppercase text-xs hover:bg-white hover:text-orange-600 transition">Restart</button>
+                    </div>
+                </div>
+                <div class="mt-6 text-4xl font-black italic">SCORE: <span id="score" class="text-orange-600">0</span></div>
+            </div>
+
+            <div class="lg:col-span-1">
+                <div class="bg-slate-900 p-8 border-r-4 border-orange-600 h-full">
+                    <h3 class="text-2xl font-black uppercase italic mb-8 tracking-widest">Top <span class="text-orange-600">Steelworkers</span></h3>
+                    <div id="leaderboard-list" class="space-y-4 font-mono uppercase text-sm">
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>1. J-Bay Legend</span><span class="text-orange-500">2,400</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>2. Anchor Steel</span><span class="text-orange-500">1,850</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <script>
-        // --- 1. REVIEW FLIPPING LOGIC ---
-        let currentReview = 0;
-        const reviews = document.querySelectorAll('.review-card');
-        
-        function flipReviews() {
-            reviews[currentReview].classList.remove('active');
-            currentReview = (currentReview + 1) % reviews.length;
-            reviews[currentReview].classList.add('active');
+        // --- NAVIGATION ---
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-tab'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('btn-' + id).classList.add('active-tab');
+            if(id === 'arcade') resetGame();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        setInterval(flipReviews, 5000);
 
-        // --- 2. IMAGE PASTE LOGIC ---
-        window.addEventListener('paste', e => {
-            const items = e.clipboardData.items;
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].type.indexOf("image") !== -1) {
-                    const blob = items[i].getAsFile();
-                    const fileInput = document.getElementById('imageInput');
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(blob);
-                    fileInput.files = dataTransfer.files;
-                    document.getElementById('uploadLabel').innerHTML = `
-                        <p class="text-green-600 font-bold italic">✓ SCREENSHOT CAPTURED</p>
-                        <p class="text-xs text-slate-500">${Math.round(blob.size/1024)} KB ready for upload</p>
-                    `;
-                }
-            }
-        });
-
-        document.getElementById('imageInput').onchange = (e) => {
-            if(e.target.files[0]) {
-                document.getElementById('uploadLabel').innerHTML = `
-                    <p class="text-blue-600 font-bold italic">✓ FILE ATTACHED</p>
-                    <p class="text-xs text-slate-500">${e.target.files[0].name}</p>
-                `;
-            }
-        };
-
-        // --- 3. LEAD FORM SUBMISSION ---
-        document.getElementById('leadForm').onsubmit = async (e) => {
+        // --- CLIENT LOGIC ---
+        let currentPlayer = "Guest_Welder";
+        document.getElementById('clientForm').onsubmit = function(e) {
             e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            const originalBtnText = btn.innerText;
-            btn.innerText = "SENDING TO J-BAY WELDERS...";
-            btn.disabled = true;
-
-            const formData = new FormData();
-            formData.append('name', document.getElementById('name').value);
-            formData.append('phone', document.getElementById('phone').value);
-            formData.append('service', document.getElementById('service').value);
-            formData.append('description', document.getElementById('description').value);
-            
-            const fileInput = document.getElementById('imageInput');
-            if(fileInput.files[0]) {
-                formData.append('image', fileInput.files[0]);
-            }
-
-            try {
-                const response = await fetch('/api/lead', { 
-                    method: 'POST', 
-                    body: formData 
-                });
-                
-                if(response.ok) {
-                    alert('SUCCESS! J-Bay Welders has received your request.');
-                    location.reload();
-                } else {
-                    alert('Server Error: Verify your Bot Token and Chat ID in server.js');
-                }
-            } catch (err) {
-                alert('Connection error. Is the server running?');
-            } finally {
-                btn.innerText = originalBtnText;
-                btn.disabled = false;
-            }
+            currentPlayer = document.getElementById('clientName').value;
+            alert(`Welcome ${currentPlayer}! Your session is locked.`);
+            document.getElementById('reg-form').innerHTML = `<p class='text-orange-500 font-black italic text-xl uppercase'>Client: ${currentPlayer}</p><p class='text-slate-500 text-[10px] mt-2 font-bold'>OFFICIAL COMPETITOR</p>`;
         };
+
+        function updateLeaderboard(score) {
+            const list = document.getElementById('leaderboard-list');
+            const entry = document.createElement('div');
+            entry.className = "flex justify-between border-b border-white/5 pb-2 text-white";
+            entry.innerHTML = `<span>${currentPlayer}</span><span class="text-orange-500">${score}</span>`;
+            list.prepend(entry);
+        }
+
+        // --- TETRIS ENGINE ---
+        const canvas = document.getElementById('tetris');
+        const context = canvas.getContext('2d');
+        context.scale(20, 20);
+
+        function collide(arena, player) {
+            const [m, o] = [player.matrix, player.pos];
+            for (let y = 0; y < m.length; ++y) {
+                for (let x = 0; x < m[y].length; ++x) {
+                    if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) return true;
+                }
+            }
+            return false;
+        }
+
+        function createMatrix(w, h) {
+            const matrix = [];
+            while (h--) matrix.push(new Array(w).fill(0));
+            return matrix;
+        }
+
+        function createPiece(type) {
+            if (type === 'I') return [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]];
+            if (type === 'L') return [[0, 2, 0], [0, 2, 0], [0, 2, 2]];
+            if (type === 'J') return [[0, 3, 0], [0, 3, 0], [3, 3, 0]];
+            if (type === 'O') return [[4, 4], [4, 4]];
+            if (type === 'Z') return [[5, 5, 0], [0, 5, 5], [0, 0, 0]];
+            if (type === 'S') return [[0, 6, 6], [6, 6, 0], [0, 0, 0]];
+            if (type === 'T') return [[0, 7, 0], [7, 7, 7], [0, 0, 0]];
+        }
+
+        function draw() {
+            context.fillStyle = '#000';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            drawMatrix(arena, {x: 0, y: 0});
+            drawMatrix(player.matrix, player.pos);
+        }
+
+        function drawMatrix(matrix, offset) {
+            matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        context.fillStyle = ['#f97316', '#38bdf8', '#fbbf24', '#f472b6', '#a855f7', '#4ade80', '#f87171'][value - 1];
+                        context.fillRect(x + offset.x, y + offset.y, 1, 1);
+                    }
+                });
+            });
+        }
+
+        function merge(arena, player) {
+            player.matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) arena[y + player.pos.y][x + player.pos.x] = value;
+                });
+            });
+        }
+
+        function playerReset() {
+            const pieces = 'ILJOTSZ';
+            player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
+            player.pos.y = 0;
+            player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
+            if (collide(arena, player)) {
+                paused = true;
+                document.getElementById('game-overlay').style.display = 'flex';
+                document.getElementById('final-score').innerText = player.score;
+                updateLeaderboard(player.score);
+            }
+        }
+
+        function rotate(matrix, dir) {
+            for (let y = 0; y < matrix.length; ++y) {
+                for (let x = 0; x < y; ++x) {
+                    [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+                }
+            }
+            if (dir > 0) matrix.forEach(row => row.reverse());
+            else matrix.reverse();
+        }
+
+        let dropCounter = 0;
+        let dropInterval = 1000;
+        let lastTime = 0;
+        let paused = false;
+
+        function update(time = 0) {
+            if (paused) return;
+            const deltaTime = time - lastTime;
+            lastTime = time;
+            dropCounter += deltaTime;
+            if (dropCounter > dropInterval) {
+                player.pos.y++;
+                if (collide(arena, player)) {
+                    player.pos.y--;
+                    merge(arena, player);
+                    playerReset();
+                    sweep();
+                }
+                dropCounter = 0;
+            }
+            draw();
+            requestAnimationFrame(update);
+        }
+
+        function sweep() {
+            outer: for (let y = arena.length - 1; y > 0; --y) {
+                for (let x = 0; x < arena[y].length; ++x) {
+                    if (arena[y][x] === 0) continue outer;
+                }
+                const row = arena.splice(y, 1)[0].fill(0);
+                arena.unshift(row);
+                player.score += 100;
+                document.getElementById('score').innerText = player.score;
+            }
+        }
+
+        const arena = createMatrix(12, 20);
+        const player = { pos: {x: 0, y: 0}, matrix: null, score: 0 };
+
+        function resetGame() {
+            arena.forEach(row => row.fill(0));
+            player.score = 0;
+            document.getElementById('score').innerText = 0;
+            playerReset();
+            paused = false;
+            document.getElementById('game-overlay').style.display = 'none';
+            update();
+        }
+
+        window.addEventListener('keydown', e => {
+            if([37,38,39,40].includes(e.keyCode)) e.preventDefault();
+            if (e.keyCode === 37) { player.pos.x--; if(collide(arena, player)) player.pos.x++; }
+            if (e.keyCode === 39) { player.pos.x++; if(collide(arena, player)) player.pos.x--; }
+            if (e.keyCode === 40) { player.pos.y++; if(collide(arena, player)) player.pos.y--; }
+            if (e.keyCode === 38) { rotate(player.matrix, 1); if(collide(arena, player)) rotate(player.matrix, -1); }
+        });
     </script>
 </body>
-
 </html>
